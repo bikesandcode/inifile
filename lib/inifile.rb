@@ -534,7 +534,7 @@ class IniFile
               if @floating
                 self.property = @line.strip
                 error if property.empty?
-                self.value = @line.strip
+                self.value = ''
               else
                 error
               end

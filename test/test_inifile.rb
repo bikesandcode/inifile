@@ -566,7 +566,8 @@ class TestIniFile < Test::Unit::TestCase
     ini_file = IniFile.load('test/data/floating_value.ini', :floating => true)
 
     assert_equal 1, ini_file['section_six'].length
-    assert_equal 'floatingValueForAThing', ini_file['section_six']['floatingValueForAThing']
+    assert ini_file['section_six'].has_key? 'floatingValueForAThing'
+    assert_nil ini_file['section_six']['floatingValueForAThing']
   end
 end
 
