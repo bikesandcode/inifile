@@ -3,6 +3,7 @@
 libpath = File.expand_path '../../lib', __FILE__
 require File.join(libpath, 'inifile')
 require 'fileutils'
+gem "minitest", "4.7.5"
 require 'test/unit'
 
 
@@ -53,6 +54,9 @@ class TestIniFile < Test::Unit::TestCase
 
     # make sure we error out on files with bad lines
     assert_raise(IniFile::Error) {IniFile.load 'test/data/bad_1.ini'}
+
+    ini_file = IniFile.load('test/data/floating_value.ini', :floating => true)
+    assert_instance_of IniFile, ini_file
   end
 
   def test_clone
@@ -556,6 +560,13 @@ class TestIniFile < Test::Unit::TestCase
 
     assert_equal 3, ini_file['section_one']['one']
     assert_equal 5, ini_file['section_five']['five']
+  end
+
+  def test_floating_value
+    ini_file = IniFile.load('test/data/floating_value.ini', :floating => true)
+
+    assert_equal 1, ini_file['section_six'].length
+    assert_equal 'floatingValueForAThing', ini_file['section_six']['floatingValueForAThing']
   end
 end
 

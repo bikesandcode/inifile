@@ -71,6 +71,7 @@ class IniFile
     @encoding = opts.fetch(:encoding, nil)
     @default  = opts.fetch(:default, 'global')
     @filename = opts.fetch(:filename, nil)
+    @floating = opts.fetch(:floating, false)
     content   = opts.fetch(:content, nil)
 
     @ini = Hash.new {|h,k| h[k] = Hash.new}
@@ -396,7 +397,7 @@ class IniFile
   #
   # Returns this IniFile.
   def parse( content )
-    parser = Parser.new(@ini, @param, @comment, @default)
+    parser = Parser.new(@ini, @param, @comment, @default, @floating)
     parser.parse(content)
     self
   end
@@ -419,9 +420,10 @@ class IniFile
     # comment - String containing the comment character(s)
     # default - The String name of the default global section
     #
-    def initialize( hash, param, comment, default )
+    def initialize( hash, param, comment, default, floating )
       @hash = hash
       @default = default
+      @floating = floating
 
       comment = comment.to_s.empty? ? "\\z" : "\\s*(?:[#{comment}].*)?\\z"
 
@@ -519,17 +521,23 @@ class IniFile
           continuation = parse_value @line
         else
           case @line
-          when @ignore_regexp
-            nil
-          when @section_regexp
-            self.section = @hash[$1]
-          when @property_regexp
-            self.property = $1.strip
-            error if property.empty?
+            when @ignore_regexp
+              nil
+            when @section_regexp
+              self.section = @hash[$1]
+            when @property_regexp
+              self.property = $1.strip
+              error if property.empty?
 
-            continuation = parse_value $2
-          else
-            error
+              continuation = parse_value $2
+            else
+              if @floating
+                self.property = @line.strip
+                error if property.empty?
+                self.value = @line.strip
+              else
+                error
+              end
           end
         end
       end

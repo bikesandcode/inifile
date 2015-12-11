@@ -16,3 +16,5 @@ coverage
 doc
 pkg
 vendor
+
+.idea/*
